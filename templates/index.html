@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CGPA Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+    
+</head>
+<body>
+    <h2>
+    <div id="container">
+        <h2>CGPA Calculator</h2>
+        <div id="semesters">
+            <h3>Semesters:</h3>
+            <div id="semester-list">
+                <!-- Semester input fields will be added here dynamically -->
+            </div>
+            <button onclick="addSemester()">Add Semester</button>
+        </div>
+        <div id="results">
+            <h3>Results:</h3>
+            <p>CGPA: <span id="cgpa">-</span></p>
+            <button onclick="calculateCGPA()">Calculate CGPA</button>
+        </div>
+    </div>
+
+    <script>
+        function addSemester() {
+            const semesterList = document.getElementById('semester-list');
+            const semesterNumber = semesterList.children.length + 1;
+            
+            const semesterDiv = document.createElement('div');
+            semesterDiv.className = 'semester';
+
+            const label = document.createElement('label');
+            label.textContent = `Semester ${semesterNumber} SGPA: `;
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'sgpa';
+            input.min = 0;
+            input.step = 0.01;
+            semesterDiv.appendChild(label);
+            semesterDiv.appendChild(input);
+
+            const creditLabel = document.createElement('label');
+            creditLabel.textContent = `Credits: `;
+            const creditInput = document.createElement('input');
+            creditInput.type = 'number';
+            creditInput.className = 'credits';
+            creditInput.min = 0;
+            semesterDiv.appendChild(creditLabel);
+            semesterDiv.appendChild(creditInput);
+
+            semesterList.appendChild(semesterDiv);
+        }
+
+        function calculateCGPA() {
+            const semesters = document.querySelectorAll('.semester');
+            const semester_sgpas = {};
+        
+            semesters.forEach((semester, index) => {
+                const sgpa = parseFloat(semester.querySelector('.sgpa').value);
+                const credits = parseInt(semester.querySelector('.credits').value);
+                const semesterName = `Semester ${index + 1}`;
+                semester_sgpas[semesterName] = { sgpa, credits };
+            });
+        
+            fetch('/calculate_cgpa', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ semester_sgpas }) // Make sure it's structured as { semester_sgpas: {...} }
+            })
+            
+            .then(response => response.json())
+            .then(data => {
+                const cgpaElement = document.getElementById('cgpa');
+                cgpaElement.textContent = data.cgpa.toFixed(2);
+            });
+        }
+    </script>
+        
+</body>
+</html>
